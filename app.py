@@ -8,6 +8,9 @@ users = {"1":"abc","2":"def"}
 
 @app.route("/")
 def hello():
+    dic = {}
+    dic.keys()
+    print(dic)
     return json.dumps(users)
 
 @app.route("/restful")
