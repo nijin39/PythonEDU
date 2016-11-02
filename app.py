@@ -1,36 +1,16 @@
-<<<<<<< HEAD
+
 from flask import Flask
 from flask import jsonify
 from flask import request
 
 app = Flask(__name__)
 
-@app.route("/")
-def hello():
-    return "HEELO WORLD!!!!"
-
-@app.route("/restful")
-def restTest():
-    dic = {'name':'yongnamdo', 'script':'script', 'bitrh': '1118'}
-    return jsonify(results=dic)
-
-@app.route("/json")
-def index():
-    list = [
-        {'param':'f','val':2},
-        {'param':'b','val':10}
-        ]
-    return jsonify(result=list)
-
 @app.route("/job", methods=["POST"])
-
-
-def create_job():
-    print("enter create job")
-    
+def create_job():   
     try:
-        contents = request.json # contents 
-        print(contents["idid"])
+        contents = request.json # contents = GET JSON  
+        print(contents["id"])
+        dic = {'id':'nam'}
         list = [
             {'param':'f','val':2},
             {'param':'b','val':10}
@@ -38,20 +18,7 @@ def create_job():
     except KeyError as e:
         print("Json  error")
         
-    return jsonify(result=list)
-
+    return jsonify(results=dic)
 
 if __name__ == "__main__":
    app.run()
-=======
-from flask import Flask
-app = Flask(__name__)
-
-@app.route('/')
-def hello_world():
-    return 'Hello World!'
-
-if __name__ == '__main__':
-    app.run()
-dic = {'name'
->>>>>>> refs/heads/master
