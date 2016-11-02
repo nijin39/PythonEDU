@@ -1,21 +1,44 @@
 from flask import Flask
 from flask import jsonify
-import json
+from flask import request
 
 app = Flask(__name__)
 
-users = {"1":"abc","2":"def"}
-
 @app.route("/")
 def hello():
-    dic = {}
-    dic.keys()
-    print(dic)
-    return json.dumps(users)
+    return "HEELO WORLD!!!!"
 
 @app.route("/restful")
-def restful():
-    return jsonify(results=users)
+def restTest():
+    dic = {'name':'yongnamdo', 'script':'script', 'bitrh': '1118'}
+    return jsonify(results=dic)
+
+@app.route("/json")
+def index():
+    list = [
+        {'param':'f','val':2},
+        {'param':'b','val':10}
+        ]
+    return jsonify(result=list)
+
+@app.route("/job", methods=["POST"])
+
+
+def create_job():
+    print("enter create job")
+    
+    try:
+        contents = request.json # contents 
+        print(contents["idid"])
+        list = [
+            {'param':'f','val':2},
+            {'param':'b','val':10}
+            ]
+    except KeyError as e:
+        print("Json  error")
+        
+    return jsonify(result=list)
+
 
 if __name__ == "__main__":
-    app.run()
+   app.run()
