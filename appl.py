@@ -67,7 +67,5 @@ def cmdProcess(dict):
 
 if __name__ == "__main__":
     cmdProcess(ex_dic1)
-    cmdProcess(ex_dic2)
-    #app.run()
-    
+    cmdProcess(ex_dic2)    
 
