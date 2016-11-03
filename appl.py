@@ -8,6 +8,7 @@ import requests
 from flask import request
 from flask import Flask
 from flask import jsonify
+from DocXMLRPCServer import DocXMLRPCServer
 
 app = Flask(__name__)
 app.config.from_pyfile('config.properties')
@@ -35,6 +36,7 @@ def subprocess_open(cmd):
 def cmdProcess(dict):
     PATH = app.config["PATH"]
     URL = app.config["URL"]
+    POSTURL = app.config["POSTURL"]
     fileName = time.strftime("%Y%m%d_%H%M%S", time.localtime())
     
     if (dict.get('Type')=='bat'):
@@ -46,8 +48,8 @@ def cmdProcess(dict):
             
             response = requests.request("PUT", URL + fileName, data=json.dumps(yesBatch), verify=False)
              
-        except IOError as e:
-            print("I/O error : " + e)
+        except IOError:
+            print("I/O error")
     
         except:
             print ("Error Occured")
@@ -57,8 +59,17 @@ def cmdProcess(dict):
             
         #.bat 실행    
         if response.text == "GOOD":
-            print(subprocess_open(PATH + fileName + '.bat')[0])
+            post_result = {}
+            pcs_result = subprocess_open(PATH + fileName + '.bat')[0]
             
+            if pcs_result[1] != null:
+                post_result['status'] = "success_excute"
+                post_result['message'] = pcs_result                            
+                response = requests.request("POST", POSTURL, data=json.dumps(post_result), verify=False)
+            else:
+                post_result['status'] = "failed_excute"
+                post_result['message'] = pcs_result    
+                response = requests.request("POST", POSTURL, data=json.dumps(pcs_result), verify=False)
         else:
             print ("Connection Error")  
             
