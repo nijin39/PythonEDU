@@ -71,10 +71,20 @@ def SaveFileAndRun(dict):
             
         #.bat 실행 
         if response.text == "GOOD":
-            print(subprocess_open(PATH + fileName + '.bat')[0])
+            post_result = {}
+            pcs_result = subprocess_open(PATH + fileName + '.bat')
             
+            if len(pcs_result[1]) == 0:
+                post_result['status'] = "success_excute"
+                post_result['message'] = pcs_result[0]
+                response = requests.request("POST", POSTURL, data=json.dumps(post_result, ensure_ascii=False), verify=False)
+            else:
+                post_result['status'] = "failed_excute"
+                post_result['message'] = pcs_result[0]    
+                response = requests.request("POST", POSTURL, data=json.dumps(post_result, ensure_ascii=False), verify=False)
+                
         else:
-            print ("Connection Error")  
+            print ("Connection Error")   
             
     else:
          response = requests.request("PUT", URL + fileName, data=json.dumps(noBatch), verify=False)
