@@ -17,7 +17,7 @@ yesBatch = {'Status':'Success','Message':'Create File'}
 noBatch = {'Status':'Fail','Message':'Creation Error Occured'}
 
 ex_dic1 = {'Status':'Success','Message':'dir','Type':'bat'}
-ex_dic2 = {'Status':'Success','Message':'dir','Type':'pirlo'}
+ex_dic2 = {'Status':'Success','Message':'df','Type':'bat'}
 
 
 '''
@@ -57,19 +57,19 @@ def cmdProcess(dict):
         finally:
             savefilePointer.close()
             
-        #.bat 실행    
         if response.text == "GOOD":
             post_result = {}
-            pcs_result = subprocess_open(PATH + fileName + '.bat')[0]
+            pcs_result = subprocess_open(PATH + fileName + '.bat')
             
-            if pcs_result[1] != null:
+            if len(pcs_result[1]) == 0:
                 post_result['status'] = "success_excute"
-                post_result['message'] = pcs_result                            
-                response = requests.request("POST", POSTURL, data=json.dumps(post_result), verify=False)
+                post_result['message'] = pcs_result[0]
+                response = requests.request("POST", POSTURL, data=json.dumps(post_result, ensure_ascii=False), verify=False)
             else:
                 post_result['status'] = "failed_excute"
-                post_result['message'] = pcs_result    
-                response = requests.request("POST", POSTURL, data=json.dumps(pcs_result), verify=False)
+                post_result['message'] = pcs_result[0]    
+                response = requests.request("POST", POSTURL, data=json.dumps(post_result, ensure_ascii=False), verify=False)
+                
         else:
             print ("Connection Error")  
             
