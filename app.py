@@ -11,12 +11,15 @@ import requests
 app = Flask(__name__)
 app.config.from_pyfile('config.properties')
 
+PATH = app.config["PATH"]
+URL = app.config["URL"]
+
 success_message = {'status':'success','message':'received'}
 failed_message = {'status':'failed','message':'received'}
 
     
 '''
-    cmd ¸í·É¾î ½ÇÇà
+    cmd ï¿½ï¿½É¾ï¿½ ï¿½ï¿½ï¿½ï¿½
 '''
 def subprocess_open(cmd):
     popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr = subprocess.PIPE)
@@ -40,15 +43,14 @@ def SaveFileAndRun(dict):
     ex_dic2 = {'Status':'Success','Message':'dir','Type':'pirlo'}
     
     '''
-            Å¬¶óÀÌ¾ðÆ®·ÎºÎÅÍ ¹ÞÀº dictionary¸¦ ÆÄ¶ó¹ÌÅÍ·Î ¹ÞÀ½.  
-            µñ¼Å³Ê¸®ÀÇ Type°ªÀÌ batÀÏ °æ¿ì ¸Å¼¼ÁöÀÇ ³»¿ëÀ» ÀúÀåÇÏ°í ¼º°ø ¸Þ¼¼Áö¸¦ ¹ÝÈ¯
-            µñ¼Å³Ê¸®ÀÇ Type°ªÀÌ batÀÌ ¾Æ´Ò °æ¿ì º°µµÀÇ °úÁ¤ ¾øÀÌ ½ÇÆÐ ¸Þ¼¼Áö¸¦ ¹ÝÈ¯
+            Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ®ï¿½Îºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ dictionaryï¿½ï¿½ ï¿½Ä¶ï¿½ï¿½ï¿½Í·ï¿½ ï¿½ï¿½ï¿½ï¿½.  
+            ï¿½ï¿½Å³Ê¸ï¿½ï¿½ï¿½ Typeï¿½ï¿½ï¿½ï¿½ batï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Å¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
+            ï¿½ï¿½Å³Ê¸ï¿½ï¿½ï¿½ Typeï¿½ï¿½ï¿½ï¿½ batï¿½ï¿½ ï¿½Æ´ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¼ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
     '''
     
-    PATH = app.config["PATH"]
-    URL = app.config["URL"]
+    
     fileName = time.strftime("%Y%m%d_%H%M%S", time.localtime())
-    print(dict["type"])
+    
     if (dict["type"]=='bat'):
         try :  
             savefilePointer = open(PATH + fileName + '.bat','w')
@@ -67,7 +69,7 @@ def SaveFileAndRun(dict):
         finally:
             savefilePointer.close()
             
-        #.bat ½ÇÇà  
+        #.bat ì‹¤í–‰ 
         if response.text == "GOOD":
             print(subprocess_open(PATH + fileName + '.bat')[0])
             
@@ -103,11 +105,11 @@ def create_job():
         if(id and script and type):
             # 3. Send Response
             
-            
-            response = requests.request("PUT", URL + fileName, data=json.dumps(success_message), verify=False)
+            response = requests.request("PUT", URL+id, data=json.dumps(success_message), verify=False)
             SaveFileAndRun(contents)
+            return jsonify(results=success_message)
         else:
-            response = requests.request("PUT", URL + fileName, data=json.dumps(failed_message), verify=False)
+            response = requests.request("PUT", URL+id, data=json.dumps(failed_message), verify=False)
 
 
     
