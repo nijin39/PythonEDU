@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+# -*- coding: ms949 -*-
 from flask import Flask
 from flask import jsonify
 from flask import request
@@ -13,6 +13,7 @@ app.config.from_pyfile('config.properties')
 
 PATH = app.config["PATH"]
 URL = app.config["URL"]
+POSTURL = app.config["POSTURL"]
 
 success_message = {'status':'success','message':'received'}
 failed_message = {'status':'failed','message':'received'}
@@ -27,30 +28,27 @@ def subprocess_open(cmd):
     return stdoutdata, stderrdata
 
 '''
+            
 1. Request Body Parsing
 2. Validate Content
 3. Send Response
+4. received dictionary from client 
+5. Validate Value type
+6. execute bat 
+7. Send post result    
+
 '''
 
-
+''' execute batch file'''
 def SaveFileAndRun(dict):
-    
     
     yesBatch = {'Status':'Success','Message':'Create File'}
     noBatch = {'Status':'Fail','Message':'Creation Error Occured'}
     
-    ex_dic1 = {'Status':'Success','Message':'dir','Type':'bat'}
-    ex_dic2 = {'Status':'Success','Message':'dir','Type':'pirlo'}
-    
-    '''
-                클라이언트로부터 받은 dictionary를 파라미터로 받음.  
-                딕셔너리의 Type값이 bat일 경우 매세지의 내용을 저장하고 성공 메세지를 반환
-                딕셔너리의 Type값이 bat이 아닐 경우 별도의 과정 없이 실패 메세지를 반환
-    '''
-    
-    
     fileName = time.strftime("%Y%m%d_%H%M%S", time.localtime())
+    '''file name is 'YearMonthDay_HoursMinuteSeconds'.'''
     
+    #5. Validate Value type
     if (dict["type"]=='bat'):
         try :  
             savefilePointer = open(PATH + fileName + '.bat','w')
@@ -69,25 +67,28 @@ def SaveFileAndRun(dict):
         finally:
             savefilePointer.close()
             
-        #.bat 실행 
+        #6. execute bat  
         if response.text == "GOOD":
             post_result = {}
             pcs_result = subprocess_open(PATH + fileName + '.bat')
             
+             #7. Send post result   
             if len(pcs_result[1]) == 0:
                 post_result['status'] = "success_excute"
                 post_result['message'] = pcs_result[0]
                 response = requests.request("POST", POSTURL, data=json.dumps(post_result, ensure_ascii=False), verify=False)
+                return post_result['message']
             else:
                 post_result['status'] = "failed_excute"
-                post_result['message'] = pcs_result[0]    
+                post_result['message'] = pcs_result[1]    
                 response = requests.request("POST", POSTURL, data=json.dumps(post_result, ensure_ascii=False), verify=False)
-                
+                return post_result['message']
         else:
             print ("Connection Error")   
             
     else:
          response = requests.request("PUT", URL + fileName, data=json.dumps(noBatch), verify=False)
+         return noBatch["Status"]
              
              
 
@@ -113,14 +114,16 @@ def create_job():
         type   : batch / bash / ksh / csh / python
         '''
         if(id and script and type):
-            # 3. Send Response
-            
+            # 3. Send Response            
             response = requests.request("PUT", URL+id, data=json.dumps(success_message), verify=False)
-            SaveFileAndRun(contents)
-            return jsonify(results=success_message)
+            
+            # 4.received dictionary from client 
+            return_value=SaveFileAndRun(contents)
+            return return_value
+            
         else:
             response = requests.request("PUT", URL+id, data=json.dumps(failed_message), verify=False)
-
+            return jsonify(results=failed_message)
 
     
 if __name__ == "__main__":
