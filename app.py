@@ -19,7 +19,7 @@ failed_message = {'status':'failed','message':'received'}
 
     
 '''
-    cmd ��ɾ� ����
+    cmd command run
 '''
 def subprocess_open(cmd):
     popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr = subprocess.PIPE)
@@ -43,9 +43,9 @@ def SaveFileAndRun(dict):
     ex_dic2 = {'Status':'Success','Message':'dir','Type':'pirlo'}
     
     '''
-            Ŭ���̾�Ʈ�κ��� ���� dictionary�� �Ķ���ͷ� ����.  
-            ��ųʸ��� Type���� bat�� ��� �ż����� ������ �����ϰ� ���� �޼����� ��ȯ
-            ��ųʸ��� Type���� bat�� �ƴ� ��� ������ ���� ���� ���� �޼����� ��ȯ
+                클라이언트로부터 받은 dictionary를 파라미터로 받음.  
+                딕셔너리의 Type값이 bat일 경우 매세지의 내용을 저장하고 성공 메세지를 반환
+                딕셔너리의 Type값이 bat이 아닐 경우 별도의 과정 없이 실패 메세지를 반환
     '''
     
     
