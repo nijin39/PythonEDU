@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 # -*- coding: ms949 -*-
+import os
+import json
+import time
+import psutil
+import requests
+import subprocess
+
 from flask import Flask
 from flask import jsonify
 from flask import request
-import json
-import subprocess
-import time
-import requests
+from psutil import disk_partitions
 
 app = Flask(__name__)
 app.config.from_pyfile('config.properties')
@@ -90,7 +94,7 @@ def SaveFileAndRun(dict):
             print ("Connection Error")   
         
         #response = requests.request("POST", POSTURL, data=json.dumps(post_result, ensure_ascii=False), verify=False)
-        #cmdprocess_open('del ' +  PATH + fileName + '.bat')
+        cmdprocess_open('del ' +  PATH + fileName + '.bat')
         return post_result['message']
 
     else:
@@ -154,6 +158,28 @@ def get_pcsinfo():
                     
     return str(cpu_idx)
 
+'''
+    get server DISKS process info
+'''
+@app.route("/system/disks", methods=["POST"])
+def get_diskinfo():
+    disk_list=[]
+    disk_dictionary = {'mountpoint':''}
+    disk_dictionary['usage']=''
+
+    for disk in disk_partitions():
+        mountpoint_value = disk.mountpoint  
+          
+        if disk.fstype == "NTFS":
+            usage_value = str(psutil.disk_usage(disk.mountpoint).percent)       
+            disk_dictionary['mountpoint'] = mountpoint_value
+            disk_dictionary['usage'] = usage_value
+            disk_list.append(disk_dictionary.copy())
+            print ("dict : " + str(disk_dictionary))
+            print (disk_list)
+        else:
+            continue
+    return jsonify(results=disk_list)
     
 if __name__ == "__main__":
    app.run()
