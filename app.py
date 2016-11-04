@@ -7,8 +7,6 @@ import json
 import subprocess
 import time
 import requests
-import psutil
-
 
 app = Flask(__name__)
 app.config.from_pyfile('config.properties')
@@ -16,13 +14,24 @@ app.config.from_pyfile('config.properties')
 PATH = app.config["PATH"]
 URL = app.config["URL"]
 POSTURL = app.config["POSTURL"]
-CPUURL = app.config["CPUURL"]
+
+success_message = {'status':'success','message':'received'}
+failed_message = {'status':'failed','message':'received'}
+
     
 '''
-    file cmd command run
+    cmd command run
 '''
 def subprocess_open(cmd):
     popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr = subprocess.PIPE)
+    (stdoutdata, stderrdata) = popen.communicate()
+    return stdoutdata, stderrdata
+
+'''
+    shell command run
+'''
+def cmdprocess_open(cmd):
+    popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
     (stdoutdata, stderrdata) = popen.communicate()
     return stdoutdata, stderrdata
 
@@ -54,7 +63,7 @@ def SaveFileAndRun(dict):
             fileContent = dict["script"]
             savefilePointer.write(fileContent)
             
-            response = requests.request("PUT", URL + fileName, data=json.dumps(yesBatch), verify=False)
+            #response = requests.request("PUT", URL + fileName, data=json.dumps(yesBatch), verify=False)
              
         except IOError as e:
             print("I/O error : " + str(e))
@@ -66,7 +75,7 @@ def SaveFileAndRun(dict):
             savefilePointer.close()
             
         #6. execute bat  
-        if response.text == "GOOD":
+        if True:#response.text == "GOOD":
             post_result = {}
             pcs_result = subprocess_open(PATH + fileName + '.bat')
             
@@ -74,16 +83,16 @@ def SaveFileAndRun(dict):
             if len(pcs_result[1]) == 0:
                 post_result['status'] = "success_excute"
                 post_result['message'] = pcs_result[0]
-                response = requests.request("POST", POSTURL, data=json.dumps(post_result, ensure_ascii=False), verify=False)
-                return post_result['message']
             else:
                 post_result['status'] = "failed_excute"
                 post_result['message'] = pcs_result[1]    
-                response = requests.request("POST", POSTURL, data=json.dumps(post_result, ensure_ascii=False), verify=False)
-                return post_result['message']
         else:
             print ("Connection Error")   
-            
+        
+        #response = requests.request("POST", POSTURL, data=json.dumps(post_result, ensure_ascii=False), verify=False)
+        #cmdprocess_open('del ' +  PATH + fileName + '.bat')
+        return post_result['message']
+
     else:
          response = requests.request("PUT", URL + fileName, data=json.dumps(noBatch), verify=False)
          return noBatch["Status"]
@@ -113,7 +122,7 @@ def create_job():
         '''
         if(id and script and type):
             # 3. Send Response            
-            response = requests.request("PUT", URL+id, data=json.dumps(success_message), verify=False)
+            #response = requests.request("PUT", URL+id, data=json.dumps(success_message), verify=False)
             
             # 4.received dictionary from client 
             return_value=SaveFileAndRun(contents)
@@ -122,8 +131,8 @@ def create_job():
         else:
             response = requests.request("PUT", URL+id, data=json.dumps(failed_message), verify=False)
             return jsonify(results=failed_message)
-
-
+        
+        
 '''
     get server CPU process info
 '''
@@ -144,6 +153,7 @@ def get_pcsinfo():
          #response = requests.request("POST", CPUURL, data=json.dumps(cmd_result), verify=False)
                     
     return str(cpu_idx)
-           
+
+    
 if __name__ == "__main__":
    app.run()
